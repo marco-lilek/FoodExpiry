@@ -1,15 +1,11 @@
 name: FoodExpiry
 main: com.mllilek.foodexpiry.FoodExpiry
 version: 1.0
+api-version: 1.13
 
 permissions:
 
 commands:
   foodexpiry:
-    description: Show the current system time used for food expiry
-    aliases: [time, date]
-
-  sethunger:
-    description: Sets the players hunger
+    description: Show info about food expiry
     aliases: []
-
