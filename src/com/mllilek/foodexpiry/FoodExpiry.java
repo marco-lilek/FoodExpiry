@@ -22,6 +22,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.io.File;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,17 +35,6 @@ import java.util.concurrent.TimeUnit;
 
 public class FoodExpiry extends JavaPlugin {
 
-    @Override
-    public void onEnable() {
-        getServer().getPluginManager().registerEvents(new MealListener(), this);
-        getServer().getPluginManager().registerEvents(new PickupFoodListener(), this);
-    }
-
-    @Override
-    public void onDisable() {
-        HandlerList.unregisterAll();
-    }
-
     private static final String PLUGIN_NAME = "foodexpiry";
 
     private static final String EXPIRY_PREFIX = "expires ";
@@ -55,11 +45,26 @@ public class FoodExpiry extends JavaPlugin {
 
     private final Random random = new Random();
 
+    @Override
+    public void onEnable() {
+        getServer().getPluginManager().registerEvents(new MealListener(), this);
+        getServer().getPluginManager().registerEvents(new PickupFoodListener(), this);
+
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+    }
+
+    @Override
+    public void onDisable() {
+        HandlerList.unregisterAll();
+    }
+
     private static boolean isSoup(Material mat) {
         return mat.equals(Material.BEETROOT_SOUP) ||
                 mat.equals(Material.MUSHROOM_STEW) ||
                 mat.equals(Material.RABBIT_STEW);
     }
+
 
     private final class MealListener implements Listener {
 
@@ -89,56 +94,66 @@ public class FoodExpiry extends JavaPlugin {
             }
 
             String foodExpiry = foodExpiryInLore.substring(EXPIRY_PREFIX.length());
+            Instant foodExpiryAsTime = null;
             try {
-                Instant foodExpiryAsTime = EXPIRY_FORMAT.parse(foodExpiry).toInstant();
-                Instant now = getCurrentWorldTime(ply, 0);
-                if (now.compareTo(foodExpiryAsTime) >= 0) {
-                    // Remove the item from the players inventory
-                    if (isSoup(foodStack.getType())) {
-                        ply.getInventory().setItemInMainHand(
-                                new ItemStack(Material.BOWL, 1));
-                    } else {
-                        if (foodStack.getAmount() <= 1) {
-                            ply.getInventory().removeItem(ply.getInventory().getItemInMainHand());
-                        } else {
-                            foodStack.setAmount(foodStack.getAmount() - 1);
-                            ply.getInventory().setItemInMainHand(foodStack);
-                        }
-                    }
-
-                    // Apply status effects
-
-                    // player is unlucky
-                    // they got sick
-                    if (random.nextInt(4) == 0) {
-                        ply.sendMessage(ChatColor.RED + "the expired food made you sick!" + ChatColor.RESET);
-                        ply.setSaturation(0);
-                        int effectDurationSeconds = random.nextInt(30);
-                        if (random.nextBoolean()) {
-                            // Make them confused
-                            ply.addPotionEffect(new PotionEffect(
-                                    PotionEffectType.CONFUSION,effectDurationSeconds * TICKS_IN_SECOND,
-                                    random.nextInt(2) /* amplifier */));
-                        } else {
-                            // Or make them sick
-                            ply.addPotionEffect(new PotionEffect(
-                                    PotionEffectType.POISON,effectDurationSeconds * TICKS_IN_SECOND,
-                                    random.nextInt(2) /* amplifier */));
-                        }
-
-                        // Always make them hungry
-                        int hungerDurationInSec = random.nextInt(3 * 60);
-                        ply.addPotionEffect(new PotionEffect(
-                                PotionEffectType.POISON,hungerDurationInSec * TICKS_IN_SECOND,
-                                1 /* amplifier */));
-
-                        e.setCancelled(true);
-                    } else {
-                        ply.sendMessage(ChatColor.YELLOW + "careful, eating expired food can make you sick!" + ChatColor.RESET);
-                    }
-                }
+                foodExpiryAsTime = EXPIRY_FORMAT.parse(foodExpiry).toInstant();
             } catch (ParseException exp) {
                 return;
+            }
+
+            Instant now = getCurrentWorldTime(ply, 0);
+            if (!getConfig().getBoolean("debugAlwaysTriggerExpiry") &&
+                    now.compareTo(foodExpiryAsTime) < 0) {
+                return;
+            }
+
+            // player is unlucky they got sick
+            if (random.nextDouble() <= getConfig().getDouble(
+                    "chanceOfGettingSick")) {
+
+                // Remove the item from the players inventory
+                if (isSoup(foodStack.getType())) {
+                    ply.getInventory().setItemInMainHand(
+                            new ItemStack(Material.BOWL, 1));
+                } else {
+                    if (foodStack.getAmount() <= 1) {
+                        ply.getInventory().removeItem(ply.getInventory().getItemInMainHand());
+                    } else {
+                        foodStack.setAmount(foodStack.getAmount() - 1);
+                        ply.getInventory().setItemInMainHand(foodStack);
+                    }
+                }
+
+                ply.sendMessage(ChatColor.RED + "the expired food made you sick!" + ChatColor.RESET);
+                ply.setSaturation(0);
+                int maxEffectDurationSec = getConfig().getInt("maxEffectDurationSec");
+                int minEffectDurationSec = getConfig().getInt("minEffectDurationSec");
+                int effectDurationSec = random.nextInt(maxEffectDurationSec - minEffectDurationSec + 1)
+                        + minEffectDurationSec;
+                if (random.nextBoolean()) {
+                    // Make them confused
+                    ply.addPotionEffect(new PotionEffect(
+                            PotionEffectType.CONFUSION,effectDurationSec * TICKS_IN_SECOND,
+                            0 /* amplifier */));
+                } else {
+                    // Or make them sick
+                    ply.addPotionEffect(new PotionEffect(
+                            PotionEffectType.POISON,effectDurationSec * TICKS_IN_SECOND,
+                            random.nextInt(2) /* amplifier */));
+                }
+
+                // Always make them hungry
+                int maxHungerDurationSec = getConfig().getInt("maxHungerDurationInSec");
+                int minHungerDurationSec = getConfig().getInt("minHungerDurationInSec");
+                int hungerDurationInSec = random.nextInt(maxHungerDurationSec - minHungerDurationSec + 1)
+                        + minHungerDurationSec;
+                ply.addPotionEffect(new PotionEffect(
+                        PotionEffectType.HUNGER,hungerDurationInSec * TICKS_IN_SECOND,
+                        random.nextInt(2) /* amplifier */));
+
+                e.setCancelled(true);
+            } else {
+                ply.sendMessage(ChatColor.YELLOW + "careful, eating expired food can make you sick!" + ChatColor.RESET);
             }
         }
     }
@@ -208,11 +223,11 @@ public class FoodExpiry extends JavaPlugin {
 
         @org.bukkit.event.EventHandler(priority = EventPriority.HIGH)
         public void onFoodPickupEvent(EntityPickupItemEvent e) {
-            Player player = (Player)e.getEntity();
-
             if (!e.getEntityType().equals(EntityType.PLAYER)) {
                 return;
             }
+            Player player = (Player)e.getEntity();
+
 
             Item item = e.getItem();
             addExpiryToFood(item.getItemStack(), player);

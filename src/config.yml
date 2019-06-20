@@ -1,0 +1,8 @@
+chanceOfGettingSick: 0.25
+maxEffectDurationSec: 30
+minEffectDurationSec: 10
+
+maxHungerDurationInSec: 120
+minHungerDurationInSec: 40
+
+debugAlwaysTriggerExpiry: false
