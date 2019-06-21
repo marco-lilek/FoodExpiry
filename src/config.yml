@@ -1,8 +1,31 @@
-chanceOfGettingSick: 0.25
-maxEffectDurationSec: 30
-minEffectDurationSec: 10
+expiry:
+  prefix: "expiry "
+  format: "yyyy-MM-dd"
 
-maxHungerDurationInSec: 120
-minHungerDurationInSec: 40
+longevity:
+  defaultExpiry: 3
+  foodExpiryMap:
+    BEETROOT_SOUP: 6
+    MUSHROOW_STEW: 6
+    RABBIT_STEW: 10
+    BREAD: 6
+    # below never expire
+    GOLDEN_APPLE: null
+    ENCHANTED_GOLDEN_APPLE: null
 
-debugAlwaysTriggerExpiry: false
+sickness:
+  chanceOfGettingSick: 0.25
+  effectDuration:
+    max: 30
+    min: 10
+  hungerDuration:
+    max: 120
+    min: 40
+  possibleEffects:
+    POISON
+    CONFUSION
+    BLINDNESS
+
+debug:
+  alwaysTriggerExpiry: false
+
