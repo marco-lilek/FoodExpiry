@@ -28,4 +28,5 @@ sickness:
 
 debug:
   alwaysTriggerExpiry: false
+  alwaysTriggerSickness: false
 

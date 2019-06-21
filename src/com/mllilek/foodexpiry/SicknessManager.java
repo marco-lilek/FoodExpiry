@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class SicknessManager {
 
-    private class RangeConfig {
+    private static class RangeConfig {
         int min;
         int max;
         RangeConfig(ConfigurationSection config) {
@@ -28,6 +28,8 @@ public class SicknessManager {
     private final RangeConfig effectDurationRange;
     private final RangeConfig hungerDurationRange;
 
+    private final boolean alwaysTriggerSickness;
+
     SicknessManager(Configuration config, Random random) {
         ConfigurationSection sicknessConfig = config.getConfigurationSection("sickness");
         this.random = random;
@@ -40,10 +42,13 @@ public class SicknessManager {
 
         this.effectDurationRange = new RangeConfig(config.getConfigurationSection("effectDuration"));
         this.hungerDurationRange = new RangeConfig(config.getConfigurationSection("hungerDuration"));
+
+        ConfigurationSection debugSection = config.getConfigurationSection(ConfigHelper.DEBUG_SECTION);
+        this.alwaysTriggerSickness = debugSection.getBoolean("alwaysTriggerSickness");
     }
 
     boolean maybeMakePlayerSick(Player ply) {
-        if (random.nextDouble() > chanceOfGettingSick) {
+        if (!alwaysTriggerSickness && random.nextDouble() > chanceOfGettingSick) {
             return false;
         }
 

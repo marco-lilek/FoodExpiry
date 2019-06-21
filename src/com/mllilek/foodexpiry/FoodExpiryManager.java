@@ -26,7 +26,7 @@ class FoodExpiryManager {
         this.expiryFormatter = expiryFormatter;
         this.timeManager = timeManager;
 
-        ConfigurationSection debugSection = config.getConfigurationSection("debug");
+        ConfigurationSection debugSection = config.getConfigurationSection(ConfigHelper.DEBUG_SECTION);
         this.debugAlwaysTriggerExpiry = debugSection.getBoolean("alwaysTriggerExpiry");
     }
 
