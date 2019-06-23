@@ -1,17 +1,21 @@
-expiry:
-  prefix: "expiry "
-  format: "yyyy-MM-dd"
+manager:
+  format:
+    prefix: "expiry "
+    format: "yyyy-MM-dd"
+    alwaysMakeExpired: false
 
-longevity:
-  defaultExpiry: 3
-  foodExpiryMap:
-    BEETROOT_SOUP: 6
-    MUSHROOW_STEW: 6
-    RABBIT_STEW: 10
-    BREAD: 6
-    # below never expire
-    GOLDEN_APPLE: null
-    ENCHANTED_GOLDEN_APPLE: null
+  longevity:
+    defaultExpiry: 3
+    foodExpiryMap:
+      BEETROOT_SOUP: 6
+      MUSHROOW_STEW: 6
+      RABBIT_STEW: 10
+      BREAD: 6
+      # below never expire
+      GOLDEN_APPLE: null
+      ENCHANTED_GOLDEN_APPLE: null
+
+  alwaysTrigger: false
 
 sickness:
   chanceOfGettingSick: 0.25
@@ -21,12 +25,5 @@ sickness:
   hungerDuration:
     max: 120
     min: 40
-  possibleEffects:
-    POISON
-    CONFUSION
-    BLINDNESS
-
-debug:
-  alwaysTriggerExpiry: false
-  alwaysTriggerSickness: false
-
+  possibleEffects: [POISON,CONFUSION,BLINDNESS]
+  alwaysTrigger: false

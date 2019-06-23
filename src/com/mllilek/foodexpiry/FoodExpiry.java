@@ -1,5 +1,7 @@
 package com.mllilek.foodexpiry;
 
+import com.mllilek.foodexpiry.expiry.FoodExpiryManager;
+import com.mllilek.foodexpiry.sickness.SicknessManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -17,8 +19,10 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.Random;
@@ -39,13 +43,12 @@ public class FoodExpiry extends JavaPlugin {
 
         Configuration config = getConfig();
         Random random = new Random();
-        sicknessManager = new SicknessManager(config, random);
-        foodExpiryManager = new FoodExpiryManager(
-                new LongevityProvider(config),
-                new ExpiryFormatter(config),
-                new TimeManager(),
-                config);
-        commandProcessor = new CommandProcessor(this.getClass().getName() /* commandName */);
+        sicknessManager = SicknessManager.fromConfig(
+                random, config.getConfigurationSection("sickness"));
+        foodExpiryManager = FoodExpiryManager.fromConfig(
+                config.getConfigurationSection("manager"));
+        commandProcessor = new CommandProcessor(
+                this.getClass().getName() /* commandName */);
     }
 
     @Override
@@ -55,7 +58,7 @@ public class FoodExpiry extends JavaPlugin {
 
     private final class EatFoodListener implements Listener {
         @org.bukkit.event.EventHandler(priority = EventPriority.NORMAL)
-        public void onEatFoodEvent(org.bukkit.event.player.PlayerItemConsumeEvent e) {
+        public void onEatFoodEvent(PlayerItemConsumeEvent e) {
             Player ply = e.getPlayer();
             ItemStack foodStack = ply.getInventory().getItemInMainHand();
 

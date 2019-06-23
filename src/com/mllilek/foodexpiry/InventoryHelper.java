@@ -20,7 +20,7 @@ class InventoryHelper {
                     new ItemStack(Material.BOWL, 1));
         } else {
             if (itemStack.getAmount() <= 1) {
-                ply.getInventory().removeItem();
+                ply.getInventory().removeItem(itemStack);
             } else {
                 itemStack.setAmount(itemStack.getAmount() - 1);
                 ply.getInventory().setItemInMainHand(itemStack);

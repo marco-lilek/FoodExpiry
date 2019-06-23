@@ -1,9 +1,8 @@
-package com.mllilek.foodexpiry;
+package com.mllilek.foodexpiry.expiry;
 
+import com.mllilek.foodexpiry.ConfigHelper;
 import org.bukkit.World;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -11,26 +10,38 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-class FoodExpiryManager {
+public class FoodExpiryManager {
     private final LongevityProvider longevityProvider;
     private final ExpiryFormatter expiryFormatter;
-    private final TimeManager timeManager;
+    private final TimeProvider timeProvider;
 
     private final boolean debugAlwaysTriggerExpiry;
 
-    FoodExpiryManager(LongevityProvider longevityProvider,
-                      ExpiryFormatter expiryFormatter,
-                      TimeManager timeManager,
-                      Configuration config) {
-        this.longevityProvider = longevityProvider;
-        this.expiryFormatter = expiryFormatter;
-        this.timeManager = timeManager;
+    public static FoodExpiryManager fromConfig(ConfigurationSection config) {
+        ConfigurationSection formatSection = config.getConfigurationSection("format");
+        ConfigurationSection longevitySection = config.getConfigurationSection("longevity");
 
-        ConfigurationSection debugSection = config.getConfigurationSection(ConfigHelper.DEBUG_SECTION);
-        this.debugAlwaysTriggerExpiry = debugSection.getBoolean("alwaysTriggerExpiry");
+        ExpiryFormatter expiryFormatter = ExpiryFormatter.fromConfig(formatSection);
+        LongevityProvider longevityProvider = LongevityProvider.fromConfig(longevitySection);
+        TimeProvider timeProvider = new TimeProvider();
+
+        return new FoodExpiryManager(longevityProvider,
+                expiryFormatter,
+                timeProvider,
+                config.getBoolean("alwaysTrigger"));
     }
 
-    void addExpiry(ItemStack itemStack, World world) {
+    FoodExpiryManager(LongevityProvider longevityProvider,
+                      ExpiryFormatter expiryFormatter,
+                      TimeProvider timeProvider,
+                      boolean debugAlwaysTriggerExpiry) {
+        this.longevityProvider = longevityProvider;
+        this.expiryFormatter = expiryFormatter;
+        this.timeProvider = timeProvider;
+        this.debugAlwaysTriggerExpiry = debugAlwaysTriggerExpiry;
+    }
+
+    public void addExpiry(ItemStack itemStack, World world) {
         if (!itemStack.getType().isEdible()) {
             return;
         }
@@ -60,7 +71,7 @@ class FoodExpiryManager {
             return;
         }
 
-        Instant worldTime = timeManager.getWorldTime(world);
+        Instant worldTime = timeProvider.getWorldTime(world);
         String expiry = expiryFormatter.generateExpiry(worldTime);
         itemLore.add(expiry);
 
@@ -68,7 +79,7 @@ class FoodExpiryManager {
         itemStack.setItemMeta(itemMeta);
     }
 
-    boolean isExpired(ItemStack itemStack, World world) {
+    public boolean isExpired(ItemStack itemStack, World world) {
         if (debugAlwaysTriggerExpiry) {
             return true;
         }
@@ -89,7 +100,7 @@ class FoodExpiryManager {
         }
 
         Instant expiryTime = expiryFormatter.parse(itemLore.get(expiryLineIdxInLore));
-        return timeManager.getWorldTime(world).compareTo(expiryTime) >= 0;
+        return timeProvider.getWorldTime(world).compareTo(expiryTime) >= 0;
     }
 
     private Integer findExpiryInLore(List<String> itemLore) {
@@ -103,7 +114,7 @@ class FoodExpiryManager {
         return null;
     }
 
-    String getCurrentDateStr(World world) {
-        return expiryFormatter.generateExpiry(timeManager.getWorldTime(world));
+    public String getCurrentDateStr(World world) {
+        return expiryFormatter.generateExpiry(timeProvider.getWorldTime(world));
     }
 }
