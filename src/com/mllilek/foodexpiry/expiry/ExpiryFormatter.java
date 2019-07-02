@@ -45,6 +45,11 @@ class ExpiryFormatter {
         if (alwaysMakeExpired) {
             time = time.minus(10, ChronoUnit.DAYS);
         }
-        return expiryPrefix + expiryFormat.format(Date.from(time));
+        return expiryPrefix + formatTime(time);
     }
+
+    String formatTime(Instant time) {
+        return expiryFormat.format(Date.from(time));
+    }
+
 }

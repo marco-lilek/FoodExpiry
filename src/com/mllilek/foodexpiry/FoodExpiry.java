@@ -22,7 +22,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
 import java.util.Random;
@@ -32,6 +31,7 @@ public class FoodExpiry extends JavaPlugin {
     private FoodExpiryManager foodExpiryManager;
     private SicknessManager sicknessManager;
     private CommandProcessor commandProcessor;
+    private boolean showFoodTypeWhenEaten;
 
     @Override
     public void onEnable() {
@@ -46,9 +46,10 @@ public class FoodExpiry extends JavaPlugin {
         sicknessManager = SicknessManager.fromConfig(
                 random, config.getConfigurationSection("sickness"));
         foodExpiryManager = FoodExpiryManager.fromConfig(
-                config.getConfigurationSection("manager"));
+                config.getConfigurationSection("expiry"));
         commandProcessor = new CommandProcessor(
                 this.getClass().getName() /* commandName */);
+        showFoodTypeWhenEaten = config.getBoolean("showFoodTypeWhenEaten");
     }
 
     @Override
@@ -61,6 +62,10 @@ public class FoodExpiry extends JavaPlugin {
         public void onEatFoodEvent(PlayerItemConsumeEvent e) {
             Player ply = e.getPlayer();
             ItemStack foodStack = ply.getInventory().getItemInMainHand();
+
+            if (showFoodTypeWhenEaten) {
+                ply.sendMessage("the food type is " + foodStack.getType().toString());
+            }
 
             if (foodExpiryManager.isExpired(foodStack, ply.getWorld())) {
                 if (sicknessManager.maybeMakePlayerSick(ply)) {

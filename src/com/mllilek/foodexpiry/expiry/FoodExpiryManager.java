@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,8 +72,8 @@ public class FoodExpiryManager {
             return;
         }
 
-        Instant worldTime = timeProvider.getWorldTime(world);
-        String expiry = expiryFormatter.generateExpiry(worldTime);
+        Instant expiryTime = timeProvider.getWorldTime(world).plus(itemLongevity, ChronoUnit.DAYS);
+        String expiry = expiryFormatter.generateExpiry(expiryTime);
         itemLore.add(expiry);
 
         itemMeta.setLore(itemLore);
@@ -115,6 +116,6 @@ public class FoodExpiryManager {
     }
 
     public String getCurrentDateStr(World world) {
-        return expiryFormatter.generateExpiry(timeProvider.getWorldTime(world));
+        return expiryFormatter.formatTime(timeProvider.getWorldTime(world));
     }
 }

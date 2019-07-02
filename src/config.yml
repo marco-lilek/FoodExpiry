@@ -1,4 +1,4 @@
-manager:
+expiry:
   format:
     prefix: "expiry "
     format: "yyyy-MM-dd"
@@ -8,7 +8,7 @@ manager:
     defaultExpiry: 3
     foodExpiryMap:
       BEETROOT_SOUP: 6
-      MUSHROOW_STEW: 6
+      MUSHROOM_STEW: 6
       RABBIT_STEW: 10
       BREAD: 6
       # below never expire
@@ -18,7 +18,7 @@ manager:
   alwaysTrigger: false
 
 sickness:
-  chanceOfGettingSick: 0.25
+  chanceOfGettingSick: 0.8
   effectDuration:
     max: 30
     min: 10
@@ -27,3 +27,5 @@ sickness:
     min: 40
   possibleEffects: [POISON,CONFUSION,BLINDNESS]
   alwaysTrigger: false
+
+showFoodTypeWhenEaten: false

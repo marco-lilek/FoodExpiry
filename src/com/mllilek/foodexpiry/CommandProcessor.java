@@ -22,8 +22,9 @@ public class CommandProcessor {
         List<String> msg = new ArrayList<>();
         msg.add("# === Food Expiry ===");
         msg.add("# Avoid eating expired foods, they might make you sick.");
+        msg.add("# A food is expired if the current date >= the expiry date.");
         msg.add("# ");
-        msg.add("# Bread, fish, and soups last long");
+        msg.add("# Some foods last longer than others");
         msg.add("# ");
         msg.add("# Right click with a clock to get the current world date");
         msg.add("# ===================");
