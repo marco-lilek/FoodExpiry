@@ -21,10 +21,11 @@ public class FoodExpiryManager {
     public static FoodExpiryManager fromConfig(ConfigurationSection config) {
         ConfigurationSection formatSection = config.getConfigurationSection("format");
         ConfigurationSection longevitySection = config.getConfigurationSection("longevity");
+        ConfigurationSection timeSection = config.getConfigurationSection("startDate");
 
         ExpiryFormatter expiryFormatter = ExpiryFormatter.fromConfig(formatSection);
         LongevityProvider longevityProvider = LongevityProvider.fromConfig(longevitySection);
-        TimeProvider timeProvider = new TimeProvider();
+        TimeProvider timeProvider = new TimeProvider(timeSection);
 
         return new FoodExpiryManager(longevityProvider,
                 expiryFormatter,

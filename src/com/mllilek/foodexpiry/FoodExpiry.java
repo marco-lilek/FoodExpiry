@@ -47,8 +47,7 @@ public class FoodExpiry extends JavaPlugin {
                 random, config.getConfigurationSection("sickness"));
         foodExpiryManager = FoodExpiryManager.fromConfig(
                 config.getConfigurationSection("expiry"));
-        commandProcessor = new CommandProcessor(
-                this.getClass().getName() /* commandName */);
+        commandProcessor = new CommandProcessor();
         showFoodTypeWhenEaten = config.getBoolean("showFoodTypeWhenEaten");
     }
 

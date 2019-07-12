@@ -10,9 +10,10 @@ import java.util.List;
 public class CommandProcessor {
     private final String commandName;
 
-    CommandProcessor(String commandName) {
-        this.commandName = commandName;
+    CommandProcessor() {
+        this.commandName = "foodexpiry";
     }
+
     public boolean process(CommandSender sender, Command cmd, String label, String[] args) {
         if (!cmd.getName().equalsIgnoreCase(commandName)) return true;
         if (args.length != 0) return false;

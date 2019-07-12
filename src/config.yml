@@ -17,6 +17,12 @@ expiry:
 
   alwaysTrigger: false
 
+  startDate:
+    day: 1
+    month: 1
+    year: 2019
+
+
 sickness:
   chanceOfGettingSick: 0.8
   effectDuration:
