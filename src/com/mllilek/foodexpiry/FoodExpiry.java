@@ -21,10 +21,10 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class FoodExpiry extends JavaPlugin {
 
@@ -84,6 +84,28 @@ public class FoodExpiry extends JavaPlugin {
         }
     }
 
+    private class AddExpiryToAllItemsInInventory implements Runnable {
+        private Player player;
+        private World world;
+        private Material type;
+
+        AddExpiryToAllItemsInInventory(Player player, World world, Material type) {
+            this.player = player;
+            this.world = world;
+            this.type = type;
+        }
+
+        @Override
+        public void run() {
+            Collection<ItemStack> allItems = (Collection<ItemStack>)player.getInventory().all(type).values();
+            for (ItemStack item : allItems) {
+                foodExpiryManager.addExpiry(item, world);
+            }
+
+            player.updateInventory();
+        }
+    }
+
     private final class PickupFoodListener implements Listener {
 
         @org.bukkit.event.EventHandler(priority = EventPriority.HIGH)
@@ -106,7 +128,11 @@ public class FoodExpiry extends JavaPlugin {
                 return;
 
             World world = e.getViewers().get(0).getWorld();
+
+            Player player = (Player)viewers.get(0);
+
             foodExpiryManager.addExpiry(currentItem, world);
+            getServer().getScheduler().runTaskLater(FoodExpiry.this, new AddExpiryToAllItemsInInventory(player, world, currentItem.getType()), 1);
         }
 
         @org.bukkit.event.EventHandler(priority = EventPriority.HIGH)
