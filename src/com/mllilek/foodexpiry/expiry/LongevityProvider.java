@@ -4,14 +4,11 @@ import com.mllilek.foodexpiry.CollectionsHelper;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class LongevityProvider {
     private final int defaultExpiry;
-    private static final int NO_EXPIRY = -1;
     private final Map<String, Integer> foodsExpiryMap;
 
 
@@ -22,24 +19,21 @@ class LongevityProvider {
     }
 
     public static LongevityProvider fromConfig(ConfigurationSection longevitySection) {
-        ConfigurationSection foodExpiryMap = longevitySection.getConfigurationSection("foodExpiryMap");
-        return new LongevityProvider(
-                longevitySection.getInt("defaultExpiry"),
-                CollectionsHelper.castMap(foodExpiryMap.getValues(false)));
+        Map<String, Integer> foodExpiryMap = new HashMap<>();
+
+        for (Object mapEntry: longevitySection.getList("foodExpiryMap")) {
+            List<Object> asList = (List<Object>)mapEntry;
+            String type = (String) asList.get(0);
+            Integer val  = (Integer)asList.get(1);
+            foodExpiryMap.put(type, val);
+        }
+        return new LongevityProvider(longevitySection.getInt("defaultExpiry"), foodExpiryMap);
     }
 
     Integer getLongevity(Material type) {
         String foodType = type.toString();
-        Integer foodExpiry = foodsExpiryMap.get(foodType);
-        if (foodExpiry == null) {
-            return defaultExpiry;
-        }
 
-        if (foodExpiry == NO_EXPIRY) {
-            return null;
-        }
-
-        return foodExpiry;
+        return foodsExpiryMap.getOrDefault(foodType, defaultExpiry);
     }
 
     private void validateExpiryMap() {

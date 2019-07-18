@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.TimeZone;
 
 class ExpiryFormatter {
     private final String expiryPrefix;
@@ -23,9 +24,11 @@ class ExpiryFormatter {
     }
 
     public static ExpiryFormatter fromConfig(ConfigurationSection formatSection) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(formatSection.getString("format"));
+
         return new ExpiryFormatter(
                 formatSection.getString("prefix"),
-                new SimpleDateFormat(formatSection.getString("format")),
+                dateFormat,
                 formatSection.getBoolean("alwaysMakeExpired"));
     }
 

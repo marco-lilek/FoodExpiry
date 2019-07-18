@@ -7,21 +7,27 @@ expiry:
   longevity:
     defaultExpiry: 3
     foodExpiryMap:
-      BEETROOT_SOUP: 6
-      MUSHROOM_STEW: 6
-      RABBIT_STEW: 10
-      BREAD: 6
-      # below never expire
-      GOLDEN_APPLE: -1
-      ENCHANTED_GOLDEN_APPLE: -1
+    - - BEETROOT_SOUP
+      - 6
+    - - MUSHROOM_STEW
+      - 6
+    - - RABBIT_STEW
+      - 10
+    - - BREAD
+      - 6
+    - - GOLDEN_APPLE
+      - null
+    - - ENCHANTED_GOLDEN_APPLE
+      - null
 
   alwaysTrigger: false
 
-  startDate:
-    day: 1
-    month: 1
-    year: 2019
-
+  time:
+    useRealWorldDate: false
+    startDate:
+      day: 1
+      month: 1
+      year: 1970
 
 sickness:
   chanceOfGettingSick: 0.8
