@@ -12,8 +12,8 @@ expiry:
       RABBIT_STEW: 10
       BREAD: 6
       # below never expire
-      GOLDEN_APPLE: null
-      ENCHANTED_GOLDEN_APPLE: null
+      GOLDEN_APPLE: -1
+      ENCHANTED_GOLDEN_APPLE: -1
 
   alwaysTrigger: false
 

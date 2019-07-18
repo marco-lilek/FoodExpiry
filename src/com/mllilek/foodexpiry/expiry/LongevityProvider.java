@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.bukkit.Bukkit.getLogger;
-
 class LongevityProvider {
     private final int defaultExpiry;
+    private static final int NO_EXPIRY = -1;
     private final Map<String, Integer> foodsExpiryMap;
+
 
     LongevityProvider(int defaultExpiry, Map<String, Integer> foodsExpiryMap) {
         this.defaultExpiry = defaultExpiry;
@@ -30,7 +30,16 @@ class LongevityProvider {
 
     Integer getLongevity(Material type) {
         String foodType = type.toString();
-        return foodsExpiryMap.getOrDefault(foodType, defaultExpiry);
+        Integer foodExpiry = foodsExpiryMap.get(foodType);
+        if (foodExpiry == null) {
+            return defaultExpiry;
+        }
+
+        if (foodExpiry == NO_EXPIRY) {
+            return null;
+        }
+
+        return foodExpiry;
     }
 
     private void validateExpiryMap() {
