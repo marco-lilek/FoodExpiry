@@ -123,10 +123,6 @@ public class FoodExpiry extends JavaPlugin {
             ItemStack currentItem = e.getCurrentItem();
             if (currentItem == null) return;
 
-            InventoryType source = e.getView().getTopInventory().getType();
-            if (!(source.equals(InventoryType.FURNACE) || source.equals(InventoryType.WORKBENCH)))
-                return;
-
             World world = e.getViewers().get(0).getWorld();
 
             Player player = (Player)viewers.get(0);
